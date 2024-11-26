@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 // Rotaları kullanma
 app.use('/api/main', main_depo_routes);
 app.use('/api/products', product_routes);
-app.use('/api/sub_depo', sub_depo_routes);
+app.use('/api/sub', sub_depo_routes);
 app.use('/api/markets', market_routes);
 app.use('/api/users', user_routes); // Kullanıcı rotalarını burada ekledik
 

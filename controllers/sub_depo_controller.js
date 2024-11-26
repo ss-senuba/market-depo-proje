@@ -55,9 +55,9 @@ exports.request_product = async (req, res) => {
 
         res.status(200).json({
             message: 'Ürün talebi başarıyla karşılandı.',
-            remainingQuantityInWarehouse: productInWarehouse.quantity,
-            addedQuantityInSubWarehouse: quantity,
-            totalQuantityInSubWarehouse: subWarehouse.products.find(p => p.productId.toString() === productId).quantity
+            kalan: productInWarehouse.quantity,
+            added: quantity,
+            total: subWarehouse.products.find(p => p.productId.toString() === productId).quantity
         });
     } catch (error) {
         res.status(500).json({ message: 'Ürün talebi karşılanamadı.', error });
