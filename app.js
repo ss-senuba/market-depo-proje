@@ -7,14 +7,14 @@ const sub_depo_routes = require('./routes/sub_depo_routes');
 const market_routes = require('./routes/market_routes');
 const user_routes = require('./routes/user_routes');
 const bodyParser = require('body-parser');
-const connectDB = require('./src/database');
+const database = require('./src/database');
 
 const app = express();
 
 require('dotenv').config();
 
 // MongoDB bağlantısı
-connectDB();
+database();
 
 // Body parser kullanarak gelen isteklerin JSON olarak işlenmesini sağla
 app.use(bodyParser.json());

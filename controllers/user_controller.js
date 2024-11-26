@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
 };
 
 // Kullanıcıyı güncelleme
-exports.updateUser = async (req, res) => {
+exports.update = async (req, res) => {
     const { name, email, password } = req.body;
     const { userId } = req.params;  // userId parametre olarak alınacak
 
@@ -60,6 +60,7 @@ exports.updateUser = async (req, res) => {
 
         await user.save(); // Güncellenmiş kullanıcıyı kaydet
         res.status(200).json({
+            message:"Güncelleme başarılı",
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -76,18 +77,20 @@ exports.delete_user = async (req, res) => {
     const { userId } = req.params;  // userId parametre olarak alınacak
 
     try {
-        const user = await User.findById(userId);
+        // Kullanıcıyı userId ile bul ve sil
+        const user = await User.findByIdAndDelete(userId);
 
         if (!user) {
             return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
         }
 
-        await user.remove(); // Kullanıcıyı sil
+        // Başarılı yanıt
         res.status(200).json({ message: 'Kullanıcı başarıyla silindi' });
     } catch (error) {
+        // Hata durumunda yanıt
         res.status(400).json({ message: 'Kullanıcı silinemedi', error });
     }
-}; 
+};
 
 // Kullanıcıları listeleme
 exports.get_list = async (req, res) => {
