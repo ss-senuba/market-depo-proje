@@ -95,27 +95,35 @@ exports.update_market = async (req, res) => {
 // Market silme
 exports.delete_market = async (req, res) => {
     try {
-        const marketId = req.params.marketId;
+        const marketId = req.params.marketId;  // URL'den market ID'sini alıyoruz
 
+        // 1. Market kaydını bulalım
         const market = await Market.findById(marketId);
         if (!market) {
+            // Eğer market bulunamazsa, hata mesajı döneriz
             return res.status(404).json({ message: 'Market bulunamadı.' });
         }
 
-        // Remove market from the subWarehouse
+        // 2. SubWarehouse kaydını bulalım
         const subWarehouseRecord = await SubWarehouse.findById(market.subWarehouse);
         if (subWarehouseRecord) {
+            // Eğer SubWarehouse varsa, markets dizisinden marketi çıkaralım
             subWarehouseRecord.markets = subWarehouseRecord.markets.filter(
                 (marketIdInSubWarehouse) => marketIdInSubWarehouse.toString() !== marketId
             );
+
+            // SubWarehouse'ı kaydedelim
             await subWarehouseRecord.save();
         }
 
-        // Delete the market
-        await market.remove();
+        // 3. Market kaydını sil
+        // `Market.findByIdAndDelete()` ile market kaydını sileriz
+        await Market.findByIdAndDelete(marketId);
 
+        // Başarılı bir şekilde silindiğini belirten cevap
         res.status(200).json({ message: 'Market başarıyla silindi.' });
     } catch (error) {
+        console.error(error);  // Hata mesajlarını konsola yazdır
         res.status(500).json({ message: 'Market silinemedi.', error });
     }
 };
