@@ -91,12 +91,14 @@ exports.update_sub_depo = async (req, res) => {
 // Alt depo silme
 exports.delete_sub_depo = async (req, res) => {
     try {
+        // Alt depoyu bul
         const subWarehouse = await SubWarehouse.findById(req.params.subWarehouseId);
 
         if (!subWarehouse) {
             return res.status(404).json({ message: 'Alt depo bulunamadı.' });
         }
 
+        // Ana depoyu bul
         const warehouse = await Warehouse.findById(subWarehouse.parentWarehouse);
         if (!warehouse) {
             return res.status(404).json({ message: 'Ana depo bulunamadı.' });
@@ -104,13 +106,16 @@ exports.delete_sub_depo = async (req, res) => {
 
         // Alt depoyu ana depodan kaldır
         warehouse.subWarehouses = warehouse.subWarehouses.filter(id => id.toString() !== subWarehouse._id.toString());
+
+        // Ana depoyu güncelle
         await warehouse.save();
 
         // Alt depoyu veritabanından sil
-        await subWarehouse.remove();
+        await SubWarehouse.deleteOne({ _id: subWarehouse._id });  // Using deleteOne to delete the sub-warehouse
 
         res.status(200).json({ message: 'Alt depo başarıyla silindi.' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Alt depo silinemedi.', error });
     }
 };
