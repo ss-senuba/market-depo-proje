@@ -45,3 +45,54 @@ exports.add_product = async (req, res) => {
         res.status(500).json({ message: 'Ürün depoya eklenemedi.', error });
     }
 };
+
+// Depo güncelleme
+exports.update = async (req, res) => {
+    try {
+        const { name, location } = req.body;
+        const warehouse = await Warehouse.findById(req.params.warehouseId);
+
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Depo bulunamadı.' });
+        }
+
+        // Güncellenmek istenen alanları kontrol et
+        if (name) warehouse.name = name;
+        if (location) warehouse.location = location;
+
+        await warehouse.save();
+        res.status(200).json({ message: 'Depo başarıyla güncellendi.', warehouse });
+    } catch (error) {
+        res.status(500).json({ message: 'Depo güncellenemedi.', error });
+    }
+};
+
+// Depo silme
+exports.delete_depo = async (req, res) => {
+    try {
+        const warehouse = await Warehouse.findById(req.params.warehouseId);
+
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Depo bulunamadı.' });
+        }
+
+        // Depoyu sil
+        await warehouse.remove();
+        res.status(200).json({ message: 'Depo başarıyla silindi.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Depo silinemedi.', error });
+    }
+};
+
+// Tüm depoları listeleme
+exports.list = async (req, res) => {
+    try {
+        const warehouses = await Warehouse.find();
+        if (warehouses.length === 0) {
+            return res.status(404).json({ message: 'Herhangi bir depo bulunmamaktadır.' });
+        }
+        res.status(200).json({ message: 'Depolar başarıyla listelendi.', warehouses });
+    } catch (error) {
+        res.status(500).json({ message: 'Depolar listelenemedi.', error });
+    }
+};
