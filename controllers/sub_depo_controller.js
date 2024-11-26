@@ -63,3 +63,68 @@ exports.request_product = async (req, res) => {
         res.status(500).json({ message: 'Ürün talebi karşılanamadı.', error });
     }
 };
+
+// Alt depo güncelleme
+exports.update_sub_depo = async (req, res) => {
+    try {
+        const { name, location } = req.body;
+        const subWarehouse = await SubWarehouse.findById(req.params.subWarehouseId);
+
+        if (!subWarehouse) {
+            return res.status(404).json({ message: 'Alt depo bulunamadı.' });
+        }
+
+        subWarehouse.name = name || subWarehouse.name;
+        subWarehouse.location = location || subWarehouse.location;
+
+        await subWarehouse.save();
+
+        res.status(200).json({
+            message: 'Alt depo başarıyla güncellendi.',
+            subWarehouse
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Alt depo güncellenemedi.', error });
+    }
+};
+
+// Alt depo silme
+exports.delete_sub_depo = async (req, res) => {
+    try {
+        const subWarehouse = await SubWarehouse.findById(req.params.subWarehouseId);
+
+        if (!subWarehouse) {
+            return res.status(404).json({ message: 'Alt depo bulunamadı.' });
+        }
+
+        const warehouse = await Warehouse.findById(subWarehouse.parentWarehouse);
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Ana depo bulunamadı.' });
+        }
+
+        // Alt depoyu ana depodan kaldır
+        warehouse.subWarehouses = warehouse.subWarehouses.filter(id => id.toString() !== subWarehouse._id.toString());
+        await warehouse.save();
+
+        // Alt depoyu veritabanından sil
+        await subWarehouse.remove();
+
+        res.status(200).json({ message: 'Alt depo başarıyla silindi.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Alt depo silinemedi.', error });
+    }
+};
+
+// Alt depo listeleme
+exports.list_sub_depos = async (req, res) => {
+    try {
+        const warehouse = await Warehouse.findById(req.params.parentWarehouseId).populate('subWarehouses');
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Ana depo bulunamadı.' });
+        }
+
+        res.status(200).json({ subWarehouses: warehouse.subWarehouses });
+    } catch (error) {
+        res.status(500).json({ message: 'Alt depolar listelenemedi.', error });
+    }
+};
