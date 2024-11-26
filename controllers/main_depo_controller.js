@@ -70,6 +70,7 @@ exports.update = async (req, res) => {
 // Depo silme
 exports.delete_depo = async (req, res) => {
     try {
+        // Depoyu bul
         const warehouse = await Warehouse.findById(req.params.warehouseId);
 
         if (!warehouse) {
@@ -77,12 +78,15 @@ exports.delete_depo = async (req, res) => {
         }
 
         // Depoyu sil
-        await warehouse.remove();
+        await Warehouse.findByIdAndDelete(req.params.warehouseId);
+
         res.status(200).json({ message: 'Depo başarıyla silindi.' });
     } catch (error) {
-        res.status(500).json({ message: 'Depo silinemedi.', error });
+        console.error(error); // Detaylı hata için
+        res.status(500).json({ message: 'Depo silinemedi.', error: error.message });
     }
 };
+
 
 // Tüm depoları listeleme
 exports.list = async (req, res) => {
